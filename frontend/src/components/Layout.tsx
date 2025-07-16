@@ -6,7 +6,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="ml-12 p-4">
+      <main className=" w-full ml-4 p-4">
         <Header />
         {children}
       </main>
