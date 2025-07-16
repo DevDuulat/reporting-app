@@ -1,11 +1,15 @@
-import { Button } from '@/components/ui/button'
+// src/App.tsx
+import Layout from '@/components/Layout'
+// import { ModeToggle } from '@/components/mode-toggle'
+import { ThemeProvider } from '@/components/theme-provider'
 
-function App() {
+export default function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <Layout>
+        <div className="text-xl font-bold">Добро пожаловать в приложение</div>
+        {/* <ModeToggle /> */}
+      </Layout>
+    </ThemeProvider>
   )
 }
-
-export default App
