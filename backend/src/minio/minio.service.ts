@@ -49,4 +49,8 @@ export class MinioService {
     );
     return `Файл '${objectName}' успешно загружен в бакет '${bucket}'`;
   }
+
+  async getFileStream(minioId: string): Promise<NodeJS.ReadableStream> {
+    return this.minioClient.getObject(config.MINIO_BUCKET, minioId);
+  }
 }

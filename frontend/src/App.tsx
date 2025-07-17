@@ -6,7 +6,7 @@ export default function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Layout>
-        <PdfViewer fileUrl="./public/Nest-js-A-Progressive-Node-js-Framework-pdf.pdf" />
+        <PdfViewer fileUrl="http://localhost:3000/files/1752763518798_test.pdf" />
       </Layout>
     </ThemeProvider>
   )
