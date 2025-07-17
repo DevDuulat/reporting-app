@@ -10,33 +10,37 @@ import {
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { Report } from './report.entity';
 
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get()
-  findAll() {
+  async findAll(): Promise<Report[]> {
     return this.reportsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<Report> {
     return this.reportsService.findOne(+id);
   }
 
   @Post()
-  create(@Body() dto: CreateReportDto) {
+  async create(@Body() dto: CreateReportDto): Promise<Report> {
     return this.reportsService.create(dto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateReportDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateReportDto,
+  ): Promise<Report> {
     return this.reportsService.update(+id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<void> {
     return this.reportsService.remove(+id);
   }
 }

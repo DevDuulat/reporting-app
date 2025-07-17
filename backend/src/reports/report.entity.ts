@@ -1,22 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { ReportInstance } from '../report_instances/report-instance.entity';
 
 @Entity('reports')
 export class Report {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  title: string;
-
   @Column({ nullable: true })
   folder: string;
 
-  @Column({ type: 'date' })
-  day: string;
+  @Column()
+  title: string;
 
-  @Column('text', { array: true, nullable: true })
-  tags: string[];
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
-  @Column({ nullable: true })
-  minio_id: string;
+  @Column({ type: 'text', nullable: true })
+  notif_rules: string;
+
+  @OneToMany(() => ReportInstance, (instance) => instance.report)
+  instances: ReportInstance[];
 }

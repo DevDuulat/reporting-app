@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsDateString } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class CreateReportDto {
   @IsString()
@@ -8,14 +8,11 @@ export class CreateReportDto {
   @IsString()
   folder?: string;
 
-  @IsDateString()
-  day: string;
-
   @IsOptional()
-  @IsArray()
-  tags?: string[];
+  @IsString()
+  description?: string;
 
   @IsOptional()
   @IsString()
-  minio_id?: string;
+  notif_rules?: string;
 }
