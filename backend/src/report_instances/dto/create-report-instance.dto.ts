@@ -1,3 +1,4 @@
+// create-report-instance.dto.ts
 import {
   IsString,
   IsInt,
@@ -5,9 +6,11 @@ import {
   IsOptional,
   IsArray,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateReportInstanceDto {
   @IsInt()
+  @Type(() => Number)
   report_id: number;
 
   @IsString()
@@ -24,8 +27,4 @@ export class CreateReportInstanceDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
-
-  @IsOptional()
-  @IsString()
-  minio_id?: string;
 }

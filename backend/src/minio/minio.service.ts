@@ -17,6 +17,17 @@ export class MinioService {
     });
   }
 
+  async uploadBuffer(buffer: Buffer, objectName: string): Promise<void> {
+    const bucket = config.MINIO_BUCKET;
+
+    const exists = await this.minioClient.bucketExists(bucket);
+    if (!exists) {
+      await this.minioClient.makeBucket(bucket, 'us-east-1');
+    }
+
+    await this.minioClient.putObject(bucket, objectName, buffer);
+  }
+
   async uploadTestFile(): Promise<string> {
     const filePath = 'src/assets/test.pdf';
     const fileStream = fs.createReadStream(filePath);

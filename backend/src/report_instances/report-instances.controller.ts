@@ -6,7 +6,10 @@ import {
   Param,
   Put,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ReportInstancesService } from './report-instances.service';
 import { CreateReportInstanceDto } from './dto/create-report-instance.dto';
 import { UpdateReportInstanceDto } from './dto/update-report-instance.dto';
@@ -38,5 +41,16 @@ export class ReportInstancesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.remove(+id);
+  }
+
+  // 📦 Upload endpoint
+  @Post('/upload/:report_id')
+  @UseInterceptors(FileInterceptor('file'))
+  upload(
+    @Param('report_id') reportId: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: CreateReportInstanceDto,
+  ) {
+    return this.service.upload(reportId, file, body);
   }
 }
