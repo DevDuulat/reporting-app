@@ -25,7 +25,11 @@ const items = [
   }
 ]
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  onSelectReport: (minioId: string) => void
+}
+
+export function AppSidebar({ onSelectReport }: AppSidebarProps) {
   const reportInstances = useReportInstances()
   const { byDay, byFolder } = useGroupedReportInstances(reportInstances)
 
@@ -70,8 +74,9 @@ export function AppSidebar() {
                           {reports.map((r) => (
                             <li
                               key={r.id}
-                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none"
+                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none cursor-pointer"
                               onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => onSelectReport?.(r.minio_id)}
                             >
                               <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
                               {r.title}
@@ -96,10 +101,11 @@ export function AppSidebar() {
                           {reports.map((r) => (
                             <li
                               key={r.id}
-                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none"
+                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none cursor-pointer"
                               onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => onSelectReport?.(r.minio_id)}
                             >
-                              <span className="block h-1.5 w-1.5 rounded-full bg-blue-500 mt-1.5 mr-2"></span>
+                              <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
                               {r.day}: {r.title}
                             </li>
                           ))}

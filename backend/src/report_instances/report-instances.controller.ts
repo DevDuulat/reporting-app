@@ -43,7 +43,6 @@ export class ReportInstancesController {
     return this.service.remove(+id);
   }
 
-  // 📦 Upload endpoint
   @Post('/upload/:report_id')
   @UseInterceptors(FileInterceptor('file'))
   upload(
