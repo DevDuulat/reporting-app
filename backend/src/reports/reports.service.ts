@@ -4,12 +4,16 @@ import { Repository } from 'typeorm';
 import { Report } from './report.entity';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { ReportUser } from './report-user.entity';
 
 @Injectable()
 export class ReportsService {
   constructor(
     @InjectRepository(Report)
     private reportsRepository: Repository<Report>,
+
+    @InjectRepository(ReportUser)
+    private reportUsersRepository: Repository<ReportUser>,
   ) {}
 
   async findAll(): Promise<Report[]> {
@@ -36,5 +40,21 @@ export class ReportsService {
   async remove(id: number): Promise<void> {
     const report = await this.findOne(id);
     await this.reportsRepository.remove(report);
+  }
+
+  async getUsersForReport(reportId: number): Promise<number[]> {
+    const entries = await this.reportUsersRepository.find({
+      where: { report_id: reportId },
+    });
+    return entries.map((entry) => entry.user_id);
+  }
+
+  async setUsersForReport(reportId: number, userIds: number[]) {
+    await this.reportUsersRepository.delete({ report_id: reportId });
+    const inserts = userIds.map((user_id) => ({
+      report_id: reportId,
+      user_id,
+    }));
+    await this.reportUsersRepository.save(inserts);
   }
 }

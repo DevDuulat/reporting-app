@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Report } from '../reports/report.entity';
 
 @Entity('users')
 export class User {
@@ -13,4 +14,7 @@ export class User {
 
   @Column({ unique: true })
   email: string;
+
+  @ManyToMany(() => Report, (report) => report.users)
+  reports: Report[];
 }

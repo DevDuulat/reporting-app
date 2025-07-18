@@ -20,16 +20,22 @@ import {
 const items = [
   {
     title: 'Home',
-    url: '#',
-    icon: Home
+    icon: Home,
+    onClick: undefined
+  },
+  {
+    title: 'Reports',
+    icon: UsersIcon,
+    onClick: (props: AppSidebarProps) => props.onOpenReports()
   }
 ]
 
 type AppSidebarProps = {
-  onSelectReport: (minioId: string) => void
+  onSelectReport: (report: { id: number; minio_id: string }) => void
+  onOpenReports: () => void
 }
 
-export function AppSidebar({ onSelectReport }: AppSidebarProps) {
+export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
   const reportInstances = useReportInstances()
   const { byDay, byFolder } = useGroupedReportInstances(reportInstances)
 
@@ -44,10 +50,16 @@ export function AppSidebar({ onSelectReport }: AppSidebarProps) {
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          item.onClick?.({ onSelectReport, onOpenReports })
+                        }
+                        className="w-full flex items-center space-x-2"
+                      >
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -74,12 +86,20 @@ export function AppSidebar({ onSelectReport }: AppSidebarProps) {
                           {reports.map((r) => (
                             <li
                               key={r.id}
-                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none cursor-pointer"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => onSelectReport?.(r.minio_id)}
+                              className="flex justify-between items-center px-2 py-1"
                             >
-                              <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
-                              {r.title}
+                              <div
+                                className="cursor-pointer flex"
+                                onClick={() =>
+                                  onSelectReport({
+                                    id: r.report.id,
+                                    minio_id: r.minio_id
+                                  })
+                                }
+                              >
+                                <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
+                                {r.title}
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -103,7 +123,12 @@ export function AppSidebar({ onSelectReport }: AppSidebarProps) {
                               key={r.id}
                               className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none cursor-pointer"
                               onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => onSelectReport?.(r.minio_id)}
+                              onClick={() =>
+                                onSelectReport({
+                                  id: r.report.id,
+                                  minio_id: r.minio_id
+                                })
+                              }
                             >
                               <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
                               {r.day}: {r.title}

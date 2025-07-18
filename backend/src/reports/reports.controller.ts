@@ -43,4 +43,17 @@ export class ReportsController {
   async remove(@Param('id') id: string): Promise<void> {
     return this.reportsService.remove(+id);
   }
+
+  @Get(':id/users')
+  async getReportUsers(@Param('id') id: number) {
+    return this.reportsService.getUsersForReport(id);
+  }
+
+  @Post(':id/users')
+  async assignUsersToReport(
+    @Param('id') id: number,
+    @Body('userIds') userIds: number[],
+  ) {
+    return this.reportsService.setUsersForReport(id, userIds);
+  }
 }
