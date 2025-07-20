@@ -1,6 +1,6 @@
-import { Home, ChevronDown, Users as UsersIcon } from 'lucide-react'
-import { ModeToggle } from '@/components/mode-toggle'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Home, ChevronDown, Users as UsersIcon } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sidebar,
   SidebarContent,
@@ -9,35 +9,40 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
-} from '@/components/ui/sidebar'
-
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   useReportInstances,
-  useGroupedReportInstances
-} from '@/hooks/useReports'
+  useGroupedReportInstances,
+} from "@/hooks/useReports";
 
 const items = [
   {
-    title: 'Home',
+    title: "Home",
     icon: Home,
-    onClick: undefined
+    onClick: undefined,
   },
   {
-    title: 'Reports',
+    title: "Reports",
     icon: UsersIcon,
-    onClick: (props: AppSidebarProps) => props.onOpenReports()
-  }
-]
+    onClick: (props: AppSidebarProps) => props.onOpenReports(),
+  },
+  {
+    title: "Users",
+    icon: UsersIcon,
+    onClick: undefined,
+  },
+];
 
 type AppSidebarProps = {
-  onSelectReport: (report: { id: number; minio_id: string }) => void
-  onOpenReports: () => void
-}
+  onSelectReport: (report: { id: number; minio_id: string }) => void;
+  onOpenReports: () => void;
+};
 
 export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
-  const reportInstances = useReportInstances()
-  const { byDay, byFolder } = useGroupedReportInstances(reportInstances)
+  const reportInstances = useReportInstances();
+  const { byDay, byFolder } = useGroupedReportInstances(reportInstances);
 
   return (
     <Sidebar>
@@ -93,7 +98,7 @@ export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
                                 onClick={() =>
                                   onSelectReport({
                                     id: r.report.id,
-                                    minio_id: r.minio_id
+                                    minio_id: r.minio_id,
                                   })
                                 }
                               >
@@ -126,7 +131,7 @@ export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
                               onClick={() =>
                                 onSelectReport({
                                   id: r.report.id,
-                                  minio_id: r.minio_id
+                                  minio_id: r.minio_id,
                                 })
                               }
                             >
@@ -147,15 +152,18 @@ export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
         {/* Нижняя панель */}
         <div className="mt-auto">
           <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupLabel>Account</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href="#users">
-                      <UsersIcon />
-                      <span>Users</span>
-                    </a>
+                    <div className="flex items-center space-x-2 w-full">
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src="/avatars/default.png" />
+                        <AvatarFallback>ME</AvatarFallback>
+                      </Avatar>
+                      <span>Мой профиль</span>
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -168,5 +176,5 @@ export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
         </div>
       </div>
     </Sidebar>
-  )
+  );
 }
