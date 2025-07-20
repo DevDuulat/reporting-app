@@ -6,6 +6,9 @@ import { ReportInstance } from './report-instance.entity';
 import { CreateReportInstanceDto } from './dto/create-report-instance.dto';
 import { UpdateReportInstanceDto } from './dto/update-report-instance.dto';
 import { MinioService } from '../minio/minio.service';
+import { ReportUser } from '../reports/report-user.entity';
+import { Grant } from '../grants/grant.entity';
+import { generateAccessToken } from '../common/utils/token';
 
 @Injectable()
 export class ReportInstancesService {
@@ -14,6 +17,12 @@ export class ReportInstancesService {
     @InjectRepository(ReportInstance)
     private repo: Repository<ReportInstance>,
     private readonly minioService: MinioService,
+
+    @InjectRepository(ReportUser)
+    private readonly reportUserRepo: Repository<ReportUser>,
+
+    @InjectRepository(Grant)
+    private readonly grantRepo: Repository<Grant>,
   ) {}
 
   create(dto: CreateReportInstanceDto) {
@@ -47,7 +56,6 @@ export class ReportInstancesService {
 
       await this.minioService.uploadBuffer(file.buffer, minioObjectName);
 
-      // Преобразуем tags в массив, если это строка
       let tags = body.tags;
       if (typeof tags === 'string') {
         try {
@@ -66,7 +74,28 @@ export class ReportInstancesService {
         minio_id: minioObjectName,
       });
 
-      return await this.repo.save(instance);
+      const savedInstance = await this.repo.save(instance);
+
+      const reportUsers = await this.reportUserRepo.find({
+        where: { report_id: reportId },
+      });
+
+      const grants = reportUsers.map((ru) =>
+        this.grantRepo.create({
+          report_instance_id: savedInstance.id,
+          user_id: ru.user_id,
+          token_limit: 0,
+          access_token: generateAccessToken(),
+        }),
+      );
+
+      await this.grantRepo.save(grants);
+
+      this.logger.log(
+        `Создано ${grants.length} грантов для отчета ${savedInstance.id}`,
+      );
+
+      return savedInstance;
     } catch (error) {
       console.error('Ошибка при загрузке отчета:', error);
       throw new Error('Не удалось загрузить отчет');
