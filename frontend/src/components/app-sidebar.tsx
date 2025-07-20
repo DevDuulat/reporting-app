@@ -31,16 +31,17 @@ const items = [
   {
     title: "Users",
     icon: UsersIcon,
-    onClick: undefined,
+    onClick: (props: AppSidebarProps) => props.onOpenUsers(), // добавить новый обработчик
   },
 ];
 
 type AppSidebarProps = {
   onSelectReport: (report: { id: number; minio_id: string }) => void;
   onOpenReports: () => void;
+  onOpenUsers: () => void;
 };
 
-export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
+export function AppSidebar({ onSelectReport, onOpenReports, onOpenUsers }: AppSidebarProps) {
   const reportInstances = useReportInstances();
   const { byDay, byFolder } = useGroupedReportInstances(reportInstances);
 
@@ -58,7 +59,7 @@ export function AppSidebar({ onSelectReport, onOpenReports }: AppSidebarProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          item.onClick?.({ onSelectReport, onOpenReports })
+                          item.onClick?.({ onSelectReport, onOpenReports, onOpenUsers })
                         }
                         className="w-full flex items-center space-x-2"
                       >
