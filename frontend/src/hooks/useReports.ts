@@ -1,3 +1,4 @@
+import { getToken } from '@/utils/keycloak.util'
 import { useEffect, useState, useMemo } from 'react'
 
 export interface Report {
@@ -22,10 +23,20 @@ export interface ReportInstance {
 export function useReports(): Report[] {
   const [reports, setReports] = useState<Report[]>([])
 
+  const getReports = async () => {
+    const token = await getToken()
+    console.log(token)
+    const response = await fetch('http://localhost:3000/reports', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    const data = await response.json()
+    setReports(data)
+  }
+
   useEffect(() => {
-    fetch('http://localhost:3000/reports')
-      .then((res) => res.json())
-      .then(setReports)
+    void getReports()
   }, [])
 
   return reports
@@ -34,10 +45,19 @@ export function useReports(): Report[] {
 export function useReportInstances(): ReportInstance[] {
   const [instances, setInstances] = useState<ReportInstance[]>([])
 
+  const getInstances = async () => {
+    const token = await getToken()
+    const response = await fetch('http://localhost:3000/report-instances', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    const data = await response.json()
+    setInstances(data)
+  }
+
   useEffect(() => {
-    fetch('http://localhost:3000/report-instances')
-      .then((res) => res.json())
-      .then(setInstances)
+    void getInstances()
   }, [])
 
   return instances

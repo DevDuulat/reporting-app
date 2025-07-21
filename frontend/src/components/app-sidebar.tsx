@@ -1,6 +1,6 @@
-import { Home, ChevronDown, Users as UsersIcon } from "lucide-react";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Home, ChevronDown, Users as UsersIcon } from 'lucide-react'
+import { ModeToggle } from '@/components/mode-toggle'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Sidebar,
   SidebarContent,
@@ -9,45 +9,44 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  SidebarMenuItem
+} from '@/components/ui/sidebar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   useReportInstances,
-  useGroupedReportInstances,
-} from "@/hooks/useReports";
+  useGroupedReportInstances
+} from '@/hooks/useReports'
 
 const items = [
   {
-    title: "Home",
-    icon: Home,
-    onClick: undefined,
+    title: 'Отчеты',
+    icon: UsersIcon,
+    onClick: (props: AppSidebarProps) => props.onOpenReports()
   },
   {
-    title: "Reports",
+    title: 'Пользователи',
     icon: UsersIcon,
-    onClick: (props: AppSidebarProps) => props.onOpenReports(),
-  },
-  {
-    title: "Users",
-    icon: UsersIcon,
-    onClick: (props: AppSidebarProps) => props.onOpenUsers(), // добавить новый обработчик
-  },
-];
+    onClick: (props: AppSidebarProps) => props.onOpenUsers()
+  }
+]
 
 type AppSidebarProps = {
-  onSelectReport: (report: { id: number; minio_id: string }) => void;
-  onOpenReports: () => void;
-  onOpenUsers: () => void;
-};
+  onSelectReport: (report: { id: number; minio_id: string }) => void
+  onOpenReports: () => void
+  onOpenUsers: () => void
+}
 
-export function AppSidebar({ onSelectReport, onOpenReports, onOpenUsers }: AppSidebarProps) {
-  const reportInstances = useReportInstances();
-  const { byDay, byFolder } = useGroupedReportInstances(reportInstances);
+export function AppSidebar({
+  onSelectReport,
+  onOpenReports,
+  onOpenUsers
+}: AppSidebarProps) {
+  const reportInstances = useReportInstances()
+  const { byDay, byFolder } = useGroupedReportInstances(reportInstances)
 
   return (
     <Sidebar>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-background text-foreground">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -59,7 +58,11 @@ export function AppSidebar({ onSelectReport, onOpenReports, onOpenUsers }: AppSi
                       <button
                         type="button"
                         onClick={() =>
-                          item.onClick?.({ onSelectReport, onOpenReports, onOpenUsers })
+                          item.onClick?.({
+                            onSelectReport,
+                            onOpenReports,
+                            onOpenUsers
+                          })
                         }
                         className="w-full flex items-center space-x-2"
                       >
@@ -74,36 +77,36 @@ export function AppSidebar({ onSelectReport, onOpenReports, onOpenUsers }: AppSi
               <div className="mt-4 select-none">
                 <Tabs defaultValue="day" className="w-full">
                   <TabsList className="grid grid-cols-2">
-                    <TabsTrigger value="day">Day</TabsTrigger>
-                    <TabsTrigger value="folder">Folder</TabsTrigger>
+                    <TabsTrigger value="day">День</TabsTrigger>
+                    <TabsTrigger value="folder">Папка</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="day" className="p-1">
+                  <TabsContent value="day" className="p-1 ">
                     {Object.entries(byDay).map(([day, reports]) => (
                       <details className="group" key={day}>
                         <summary
-                          className="flex items-center justify-between px-2 py-1.5 text-sm font-medium cursor-pointer list-none hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                          className="flex items-center justify-between px-2 py-1.5 text-sm font-medium cursor-pointer list-none hover:bg-gray-100 dark:hover:bg-primary rounded"
                           onMouseDown={(e) => e.preventDefault()}
                         >
                           <span>{day}</span>
                           <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
                         </summary>
-                        <ul className="mt-1 pl-4 space-y-1">
+                        <ul className="mt-1 pl-4 space-y-1 ">
                           {reports.map((r) => (
                             <li
                               key={r.id}
-                              className="flex justify-between items-center px-2 py-1"
+                              className="flex justify-between items-center px-2 py-1 dark:hover:bg-primary rounded"
                             >
                               <div
                                 className="cursor-pointer flex"
                                 onClick={() =>
                                   onSelectReport({
                                     id: r.report.id,
-                                    minio_id: r.minio_id,
+                                    minio_id: r.minio_id
                                   })
                                 }
                               >
-                                <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
+                                <span className="block h-1.5 w-1.5 rounded-full bg-dark-500 mt-1.5 mr-2"></span>
                                 {r.title}
                               </div>
                             </li>
@@ -132,11 +135,11 @@ export function AppSidebar({ onSelectReport, onOpenReports, onOpenUsers }: AppSi
                               onClick={() =>
                                 onSelectReport({
                                   id: r.report.id,
-                                  minio_id: r.minio_id,
+                                  minio_id: r.minio_id
                                 })
                               }
                             >
-                              <span className="block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 mr-2"></span>
+                              <span className="block h-1.5 w-1.5 rounded-full bg-dark-500 mt-1.5 mr-2"></span>
                               {r.day}: {r.title}
                             </li>
                           ))}
@@ -177,5 +180,5 @@ export function AppSidebar({ onSelectReport, onOpenReports, onOpenUsers }: AppSi
         </div>
       </div>
     </Sidebar>
-  );
+  )
 }

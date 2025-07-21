@@ -26,14 +26,17 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.1",
+    "@nestjs/axios": "^4.0.1",
+    "@nestjs/common": "^11.1.5",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.0",
+    "jsonwebtoken": "^9.0.2",
     "minio": "^8.0.5",
     "nestjs-minio": "^2.6.2",
     "pg": "^8.16.3",
