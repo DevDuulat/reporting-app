@@ -1,87 +1,87 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import type { Report } from "@/types/report";
-import { createReport, updateReport } from "@/api/reportsApi";
-import { toast } from "sonner";
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import type { Report } from '@/types/report'
+import { createReport, updateReport } from '@/api/reportsApi'
+import { toast } from 'sonner'
 
 interface ReportDialogProps {
-  open: boolean;
-  onClose: () => void;
-  initialData?: Report;
-  onSuccess: () => void;
+  open: boolean
+  onClose: () => void
+  initialData?: Report
+  onSuccess: () => void
 }
 
 export function ReportDialog({
   open,
   onClose,
   initialData,
-  onSuccess,
+  onSuccess
 }: ReportDialogProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [folder, setFolder] = useState("");
-  const [notifRules, setNotifRules] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [folder, setFolder] = useState('')
+  const [notifRules, setNotifRules] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (initialData) {
-      setTitle(initialData.title ?? "");
-      setDescription(initialData.description ?? "");
-      setFolder(initialData.folder ?? "");
-      setNotifRules(initialData.notif_rules ?? "");
+      setTitle(initialData.title ?? '')
+      setDescription(initialData.description ?? '')
+      setFolder(initialData.folder ?? '')
+      setNotifRules(initialData.notif_rules ?? '')
     } else {
-      setTitle("");
-      setDescription("");
-      setFolder("");
-      setNotifRules("");
+      setTitle('')
+      setDescription('')
+      setFolder('')
+      setNotifRules('')
     }
-  }, [initialData]);
+  }, [initialData])
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       if (initialData?.id) {
         await updateReport(initialData.id, {
           title,
           description,
           folder,
-          notif_rules: notifRules,
-        });
-        toast.success("Отчёт обновлён");
+          notif_rules: notifRules
+        })
+        toast.success('Отчёт обновлён')
       } else {
         await createReport({
           title,
           description,
           folder,
-          notif_rules: notifRules,
-        });
-        toast.success("Отчёт создан");
+          notif_rules: notifRules
+        })
+        toast.success('Отчёт создан')
       }
 
-      onSuccess();
+      onSuccess()
     } catch (error) {
-      console.error("Ошибка при сохранении отчёта:", error);
-      toast.error("Ошибка при сохранении отчёта");
+      console.error('Ошибка при сохранении отчёта:', error)
+      toast.error('Ошибка при сохранении отчёта')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="bg-card text-card-foreground">
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Редактировать отчёт" : "Создать отчёт"}
+            {initialData ? 'Редактировать отчёт' : 'Создать отчёт'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -132,10 +132,10 @@ export function ReportDialog({
             disabled={loading || !title.trim()}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {loading ? "Сохранение..." : "Сохранить"}
+            {loading ? 'Сохранение...' : 'Сохранить'}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

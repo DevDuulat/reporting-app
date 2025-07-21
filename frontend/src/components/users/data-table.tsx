@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,8 +12,8 @@ import {
   type VisibilityState,
   type ColumnDef,
   type Row,
-  type Table,
-} from "@tanstack/react-table";
+  type Table
+} from '@tanstack/react-table'
 
 import {
   Table as UITable,
@@ -21,85 +21,85 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+  TableRow
+} from '@/components/ui/table'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu";
+  DropdownMenuCheckboxItem
+} from '@/components/ui/dropdown-menu'
 
-import { ChevronDown } from "lucide-react";
-import { UserActions } from "@/components/users/user-actions";
-import { UserDialog } from "@/components/users/user-dialog";
-import type { User } from "@/types/user";
+import { ChevronDown } from 'lucide-react'
+import { UserActions } from '@/components/users/user-actions'
+import { UserDialog } from '@/components/users/user-dialog'
+import type { User } from '@/types/user'
 
 type UsersTableProps = {
-  data: User[];
-  columns: ColumnDef<User>[];
-  onEditUser?: (user: User) => void;
+  data: User[]
+  columns: ColumnDef<User>[]
+  onEditUser?: (user: User) => void
 
-  onDeleteUser?: (id: number) => Promise<void>;
-  onDataChange?: () => void;
-};
+  onDeleteUser?: (id: number) => Promise<void>
+  onDataChange?: () => void
+}
 
 export function UsersTable({
   data,
   columns,
   onEditUser,
   onDeleteUser,
-  onDataChange,
+  onDataChange
 }: UsersTableProps) {
-  const [editUser, setEditUser] = React.useState<User | null>(null);
-  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [editUser, setEditUser] = React.useState<User | null>(null)
+  const [isEditOpen, setIsEditOpen] = React.useState(false)
 
-  const [localData, setLocalData] = React.useState<User[]>(data);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [localData, setLocalData] = React.useState<User[]>(data)
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  );
+  )
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+    React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
 
   React.useEffect(() => {
-    setLocalData(data);
-  }, [data]);
+    setLocalData(data)
+  }, [data])
 
   const handleEdit = (user: User) => {
-    setEditUser(user);
-    setIsEditOpen(true);
-  };
+    setEditUser(user)
+    setIsEditOpen(true)
+  }
 
   const handleDelete = async (id: number) => {
     if (onDeleteUser) {
-      await onDeleteUser(id);
+      await onDeleteUser(id)
     }
-  };
+  }
 
   const extendedColumns: ColumnDef<User>[] = React.useMemo(() => {
     return columns.map((col) => {
-      if (col.id === "actions") {
+      if (col.id === 'actions') {
         return {
           ...col,
           cell: ({ row }: { row: Row<User>; table: Table<User> }) => {
-            const user = row.original;
+            const user = row.original
             return (
               <UserActions
                 user={user}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
-            );
-          },
-        };
+            )
+          }
+        }
       }
-      return col;
-    });
-  }, [columns]);
+      return col
+    })
+  }, [columns])
 
   const table = useReactTable<User>({
     data: localData,
@@ -108,7 +108,7 @@ export function UsersTable({
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      rowSelection
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -118,16 +118,20 @@ export function UsersTable({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-  });
+    meta: {
+      onEditUser,
+      onDeleteUser
+    }
+  })
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
           placeholder="Поиск по имени..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
           onChange={(e) =>
-            table.getColumn("title")?.setFilterValue(e.target.value)
+            table.getColumn('title')?.setFilterValue(e.target.value)
           }
           className="max-w-sm"
         />
@@ -162,7 +166,7 @@ export function UsersTable({
               <TableRow key={group.id}>
                 {group.headers.map((header) => (
                   <TableHead key={header.id}>
-                    {typeof header.column.columnDef.header === "function"
+                    {typeof header.column.columnDef.header === 'function'
                       ? header.column.columnDef.header(header.getContext())
                       : header.column.columnDef.header}
                   </TableHead>
@@ -177,7 +181,7 @@ export function UsersTable({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {typeof cell.column.columnDef.cell === "function"
+                      {typeof cell.column.columnDef.cell === 'function'
                         ? cell.column.columnDef.cell(cell.getContext())
                         : cell.column.columnDef.cell}
                     </TableCell>
@@ -200,7 +204,7 @@ export function UsersTable({
 
       <div className="flex items-center justify-between py-4">
         <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} из{" "}
+          {table.getFilteredSelectedRowModel().rows.length} из{' '}
           {table.getFilteredRowModel().rows.length} выбрано
         </div>
         <div className="space-x-2">
@@ -224,15 +228,15 @@ export function UsersTable({
       </div>
 
       <UserDialog
-        key={editUser?.id || "new"}
+        key={editUser?.id || 'new'}
         open={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         initialData={editUser ?? undefined}
         onSuccess={() => {
-          onDataChange?.();
-          setIsEditOpen(false);
+          onDataChange?.()
+          setIsEditOpen(false)
         }}
       />
     </div>
-  );
+  )
 }
