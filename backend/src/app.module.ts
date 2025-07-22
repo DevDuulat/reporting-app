@@ -11,6 +11,7 @@ import { ReportInstancesModule } from './report_instances/report-instances.modul
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guards/auth.guard';
 import { AuthModule } from './auth/auth.module';
+import { ViewsModule } from './views/views.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthModule } from './auth/auth.module';
     ReportsModule,
     MinioModule,
     ReportInstancesModule,
+    ViewsModule,
   ],
   controllers: [AppController],
   providers: [

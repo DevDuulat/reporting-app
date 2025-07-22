@@ -27,4 +27,12 @@ export class ViewsService {
 
     return await this.viewsRepository.save(view);
   }
+
+  async findByUserId(userId: number) {
+    return this.viewsRepository.find({
+      where: { user: { id: userId } },
+      relations: ['report'],
+      order: { timestamp: 'DESC' },
+    });
+  }
 }

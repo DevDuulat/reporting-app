@@ -5,6 +5,7 @@ import { Report } from './report.entity';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { ReportUser } from './report-user.entity';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class ReportsService {
@@ -42,11 +43,13 @@ export class ReportsService {
     await this.reportsRepository.remove(report);
   }
 
-  async getUsersForReport(reportId: number): Promise<number[]> {
-    const entries = await this.reportUsersRepository.find({
-      where: { report_id: reportId },
+  async getUsersForReport(reportId: number): Promise<User[]> {
+    const report = await this.reportsRepository.findOne({
+      where: { id: reportId },
+      relations: ['users'],
     });
-    return entries.map((entry) => entry.user_id);
+    if (!report) throw new NotFoundException('Report not found');
+    return report.users;
   }
 
   async setUsersForReport(reportId: number, userIds: number[]) {

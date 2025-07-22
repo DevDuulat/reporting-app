@@ -16,6 +16,8 @@ import {
   useReportInstances,
   useGroupedReportInstances
 } from '@/hooks/useReports'
+import { useState } from 'react'
+import { ProfileModal } from '@/components/profile/ProfileModal'
 
 const items = [
   {
@@ -43,6 +45,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const reportInstances = useReportInstances()
   const { byDay, byFolder } = useGroupedReportInstances(reportInstances)
+  const [profileOpen, setProfileOpen] = useState(false)
 
   return (
     <Sidebar>
@@ -161,13 +164,16 @@ export function AppSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <div className="flex items-center space-x-2 w-full">
+                    <button
+                      onClick={() => setProfileOpen(true)}
+                      className="flex items-center space-x-2 w-full"
+                    >
                       <Avatar className="h-6 w-6">
-                        <AvatarImage src="/avatars/default.png" />
+                        <AvatarImage src="https://placehold.co/800x800" />
                         <AvatarFallback>ME</AvatarFallback>
                       </Avatar>
                       <span>Мой профиль</span>
-                    </div>
+                    </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

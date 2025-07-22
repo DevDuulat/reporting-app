@@ -1,5 +1,5 @@
 export const mockUser = {
-  id: 1100,
-  email: 'dishenuulu@mail.ru',
+  id: 6,
+  email: 'cfo@example.com',
   role: 'user' // или 'admin' для админа
 }
