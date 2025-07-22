@@ -9,9 +9,10 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import '@react-pdf-viewer/full-screen/lib/styles/index.css'
 
 import { useTheme } from '@/components/theme-provider'
-import { useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
+import { getToken } from '@/utils/keycloak.util'
 
-const PdfViewer = ({ fileUrl }: { fileUrl: string }) => {
+const PdfViewer = ({ fileId }: { fileId: string }) => {
   const { theme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -23,11 +24,63 @@ const PdfViewer = ({ fileUrl }: { fileUrl: string }) => {
     sidebarTabs: () => []
   })
 
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchPdf() {
+      try {
+        setLoading(true)
+        const token = await getToken()
+        const response = await fetch(`http://localhost:3000/files/${fileId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        if (!response.ok) {
+          throw new Error(`Ошибка загрузки файла: ${response.status}`)
+        }
+
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+
+        if (isMounted) {
+          setBlobUrl(url)
+          setError(null)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError((err as Error).message)
+          setBlobUrl(null)
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchPdf()
+
+    return () => {
+      isMounted = false
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl)
+      }
+    }
+  }, [fileId])
+
+  if (loading) return <p>Загрузка файла...</p>
+  if (error) return <p className="text-red-600">Ошибка: {error}</p>
+  if (!blobUrl) return <p>Файл не доступен</p>
+
   return (
     <div ref={containerRef} className="h-screen w-full">
       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
         <Viewer
-          fileUrl={fileUrl}
+          fileUrl={blobUrl}
           plugins={[defaultLayout, fullScreen]}
           theme={theme === 'dark' ? 'dark' : 'light'}
         />

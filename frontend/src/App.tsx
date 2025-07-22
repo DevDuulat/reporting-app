@@ -1,38 +1,37 @@
-import { useActionState, useState } from 'react'
+import { useState } from 'react'
 import Layout from '@/components/Layout'
-import { ThemeProvider } from '@/components/theme-provider'
 import PdfViewer from '@/components/PdfViewer'
 import UsersPage from '@/components/users/page'
 import ReportsPage from '@/components/reports/page'
-import { Providers } from './providers/providers'
 import { useAuthState } from './hooks/useKeycloak'
 
 type Page = 'reports' | 'viewer' | 'users' | 'none'
 
 export default function App() {
-  const [fileUrl, setFileUrl] = useState<string | null>(null)
+  const [fileId, setFileId] = useState<string | null>(null)
   const [activePage, setActivePage] = useState<Page>('reports')
   const { authenticated } = useAuthState()
+
   return (
     authenticated && (
       <Layout
         onSelectReport={(report) => {
-          setFileUrl(`http://localhost:3000/files/${report.minio_id}`)
+          setFileId(report.minio_id)
           setActivePage('viewer')
         }}
         onOpenReports={() => {
-          setFileUrl(null)
+          setFileId(null)
           setActivePage('reports')
         }}
         onOpenUsers={() => {
-          setFileUrl(null)
+          setFileId(null)
           setActivePage('users')
         }}
       >
         {activePage === 'reports' ? (
           <ReportsPage />
-        ) : activePage === 'viewer' && fileUrl ? (
-          <PdfViewer fileUrl={fileUrl} />
+        ) : activePage === 'viewer' && fileId ? (
+          <PdfViewer fileId={fileId} />
         ) : activePage === 'users' ? (
           <UsersPage />
         ) : (

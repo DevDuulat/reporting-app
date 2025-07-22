@@ -1,6 +1,6 @@
-// src/components/AssignUsersPopover.tsx
 import { useEffect, useState } from 'react'
-import { Check, User } from 'lucide-react'
+import axios from 'axios'
+import { Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -16,6 +16,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { getToken } from '@/utils/keycloak.util'
 
 type User = {
   id: number
@@ -32,33 +33,55 @@ export function AssignUsersPopover({ reportId }: Props) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:3000/users')
-      .then((res) => res.json())
-      .then(setUsers)
-      .catch(() => setUsers([]))
+    async function fetchData() {
+      try {
+        const token = await getToken()
 
-    fetch(`http://localhost:3000/reports/${reportId}/users`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: User[]) => {
-        const ids = data
-          .map((u: User) => u?.id)
-          .filter(
-            (id: number | undefined): id is number => typeof id === 'number'
-          )
+        const [usersResponse, selectedUsersResponse] = await Promise.all([
+          axios.get<User[]>('http://localhost:3000/users', {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get<User[]>(`http://localhost:3000/reports/${reportId}/users`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ])
+
+        setUsers(usersResponse.data)
+
+        const ids = selectedUsersResponse.data
+          .map((u) => u?.id)
+          .filter((id): id is number => typeof id === 'number')
+
         setSelected(ids)
-      })
-      .catch(() => setSelected([]))
+      } catch (error) {
+        setUsers([])
+        setSelected([])
+        console.error('Ошибка загрузки пользователей', error)
+      }
+    }
+    fetchData()
   }, [reportId])
 
   const handleSave = async () => {
-    const validIds = selected.filter(
-      (id): id is number => typeof id === 'number' && !isNaN(id)
-    )
-    await fetch(`http://localhost:3000/reports/${reportId}/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userIds: validIds })
-    })
+    try {
+      const token = await getToken()
+      const validIds = selected.filter(
+        (id): id is number => typeof id === 'number' && !isNaN(id)
+      )
+      await axios.post(
+        `http://localhost:3000/reports/${reportId}/users`,
+        { userIds: validIds },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      setOpen(false) // можно закрыть поповер после сохранения
+    } catch (error) {
+      console.error('Ошибка при сохранении пользователей', error)
+    }
   }
 
   const toggleUser = (id: number) => {

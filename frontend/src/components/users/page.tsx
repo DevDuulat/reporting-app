@@ -12,20 +12,27 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | undefined>()
-
   const fetchUsers = async () => {
-    const res = await getUsers()
-    setUsers(res.data)
+    try {
+      const users = await getUsers()
+      setUsers(users)
+    } catch {
+      toast.error('Ошибка загрузки пользователей')
+    }
   }
 
   useEffect(() => {
-    fetchUsers()
+    void fetchUsers()
   }, [])
 
   const handleDelete = async (id: number) => {
-    await deleteUser(id)
-    toast.success('Пользователь удалён')
-    fetchUsers()
+    try {
+      await deleteUser(id)
+      toast.success('Пользователь удалён')
+      await fetchUsers()
+    } catch {
+      toast.error('Ошибка при удалении пользователя')
+    }
   }
 
   return (

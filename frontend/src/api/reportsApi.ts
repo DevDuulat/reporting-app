@@ -1,17 +1,82 @@
 import axios from 'axios'
 import type { Report } from '@/types/report'
+import type { User } from '@/types/user'
+import { getToken } from '@/utils/keycloak.util'
 
 const API_URL = 'http://localhost:3000/reports'
 
-export const getReports = () => axios.get<Report[]>(API_URL)
-export const getReport = (id: number) => axios.get<Report>(`${API_URL}/${id}`)
-export const createReport = (data: Partial<Report>) =>
-  axios.post<Report>(API_URL, data)
-export const updateReport = (id: number, data: Partial<Report>) =>
-  axios.put<Report>(`${API_URL}/${id}`, data)
-export const deleteReport = (id: number) => axios.delete(`${API_URL}/${id}`)
+export const getReports = async (): Promise<Report[]> => {
+  const token = await getToken()
 
-export const getReportUsers = (id: number) =>
-  axios.get(`${API_URL}/${id}/users`)
-export const setReportUsers = (id: number, userIds: number[]) =>
-  axios.post(`${API_URL}/${id}/users`, { userIds })
+  const response = await axios.get<Report[]>(API_URL, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  return response.data
+}
+
+export const getReport = async (id: number): Promise<Report> => {
+  const token = await getToken()
+
+  const response = await axios.get<Report>(`${API_URL}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  return response.data
+}
+
+export const createReport = async (data: Partial<Report>): Promise<Report> => {
+  const token = await getToken()
+
+  const response = await axios.post<Report>(API_URL, data, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  return response.data
+}
+
+export const updateReport = async (
+  id: number,
+  data: Partial<Report>
+): Promise<Report> => {
+  const token = await getToken()
+
+  const response = await axios.put<Report>(`${API_URL}/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  return response.data
+}
+
+export const deleteReport = async (id: number): Promise<void> => {
+  const token = await getToken()
+
+  await axios.delete(`${API_URL}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+}
+
+export const getReportUsers = async (id: number): Promise<User[]> => {
+  const token = await getToken()
+
+  const response = await axios.get<User[]>(`${API_URL}/${id}/users`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  return response.data
+}
+
+export const setReportUsers = async (
+  id: number,
+  userIds: number[]
+): Promise<void> => {
+  const token = await getToken()
+
+  await axios.post(
+    `${API_URL}/${id}/users`,
+    { userIds },
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  )
+}
