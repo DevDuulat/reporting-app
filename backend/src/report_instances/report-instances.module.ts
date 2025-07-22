@@ -6,9 +6,14 @@ import { Grant } from '../grants/grant.entity';
 import { ReportInstancesService } from './report-instances.service';
 import { ReportInstancesController } from './report-instances.controller';
 import { MinioService } from '../minio/minio.service';
+import { GrantsModule } from '../grants/grants.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ReportInstance, ReportUser, Grant])],
+  imports: [
+    TypeOrmModule.forFeature([ReportInstance, ReportUser, Grant]),
+    GrantsModule,
+  ],
+
   controllers: [ReportInstancesController],
   providers: [ReportInstancesService, MinioService],
 })

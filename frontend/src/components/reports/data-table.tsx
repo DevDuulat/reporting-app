@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import * as React from "react";
+import * as React from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,8 +12,8 @@ import {
   type VisibilityState,
   type ColumnDef,
   type Row,
-  type Table,
-} from "@tanstack/react-table";
+  type Table
+} from '@tanstack/react-table'
 
 import {
   Table as UITable,
@@ -21,80 +21,79 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  TableRow
+} from '@/components/ui/table'
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu";
+  DropdownMenuCheckboxItem
+} from '@/components/ui/dropdown-menu'
 
-import { ChevronDown } from "lucide-react";
-import { ReportDialog } from "@/components/reports/report-dialog";
-import { ReportView } from "@/components/reports/report-view";
-import type { Report } from "@/types/report";
-import { ReportActions } from "@/components/reports/report-actions";
+import { ChevronDown } from 'lucide-react'
+import { ReportDialog } from '@/components/reports/report-dialog'
+import { ReportView } from '@/components/reports/report-view'
+import type { Report } from '@/types/report'
+import { ReportActions } from '@/components/reports/report-actions'
 
 type ReportsTableProps = {
-  data: Report[];
-  columns: ColumnDef<Report>[];
-  onEditReport?: (report: Report) => Promise<void>;
-  onDeleteReport?: (id: number) => Promise<void>;
-  onDataChange?: () => void;
-};
+  data: Report[]
+  columns: ColumnDef<Report>[]
+  onEditReport?: (report: Report) => Promise<void>
+  onDeleteReport?: (id: number) => Promise<void>
+  onDataChange?: () => void
+}
 
 export function ReportsTable({
   data,
   columns,
-  onEditReport,
   onDeleteReport,
-  onDataChange,
+  onDataChange
 }: ReportsTableProps) {
-  const [editReport, setEditReport] = React.useState<Report | null>(null);
-  const [viewReport, setViewReport] = React.useState<Report | null>(null);
-  const [isEditOpen, setIsEditOpen] = React.useState(false);
-  const [isViewOpen, setIsViewOpen] = React.useState(false);
-  const [localData, setLocalData] = React.useState<Report[]>(data);
+  const [editReport, setEditReport] = React.useState<Report | null>(null)
+  const [viewReport, setViewReport] = React.useState<Report | null>(null)
+  const [isEditOpen, setIsEditOpen] = React.useState(false)
+  const [isViewOpen, setIsViewOpen] = React.useState(false)
+  const [localData, setLocalData] = React.useState<Report[]>(data)
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  );
+  )
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+    React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
 
   React.useEffect(() => {
-    setLocalData(data);
-  }, [data]);
+    setLocalData(data)
+  }, [data])
 
   const handleEdit = (report: Report) => {
-    setEditReport(report);
-    setIsEditOpen(true);
-  };
+    setEditReport(report)
+    setIsEditOpen(true)
+  }
 
   const handleView = (report: Report) => {
-    setViewReport(report);
-    setIsViewOpen(true);
-  };
+    setViewReport(report)
+    setIsViewOpen(true)
+  }
 
   const handleDelete = async (id: number) => {
     if (onDeleteReport) {
-      await onDeleteReport(id);
+      await onDeleteReport(id)
     }
-  };
+  }
 
   const extendedColumns: ColumnDef<Report>[] = React.useMemo(() => {
     return columns.map((col) => {
-      if (col.id === "actions") {
+      if (col.id === 'actions') {
         return {
           ...col,
           cell: ({ row }: { row: Row<Report>; table: Table<Report> }) => {
-            const report = row.original;
+            const report = row.original
             return (
               <ReportActions
                 report={report}
@@ -102,13 +101,13 @@ export function ReportsTable({
                 onView={handleView}
                 onDelete={handleDelete}
               />
-            );
-          },
-        };
+            )
+          }
+        }
       }
-      return col;
-    });
-  }, [columns]);
+      return col
+    })
+  }, [columns])
 
   const table = useReactTable<Report>({
     data: localData,
@@ -117,7 +116,7 @@ export function ReportsTable({
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      rowSelection
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -126,17 +125,17 @@ export function ReportsTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+    getPaginationRowModel: getPaginationRowModel()
+  })
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
           placeholder="Фильтр по названию..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
           onChange={(e) =>
-            table.getColumn("title")?.setFilterValue(e.target.value)
+            table.getColumn('title')?.setFilterValue(e.target.value)
           }
           className="max-w-sm"
         />
@@ -173,7 +172,7 @@ export function ReportsTable({
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : typeof header.column.columnDef.header === "function"
+                      : typeof header.column.columnDef.header === 'function'
                       ? header.column.columnDef.header(header.getContext())
                       : header.column.columnDef.header}
                   </TableHead>
@@ -188,7 +187,7 @@ export function ReportsTable({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {typeof cell.column.columnDef.cell === "function"
+                      {typeof cell.column.columnDef.cell === 'function'
                         ? cell.column.columnDef.cell(cell.getContext())
                         : cell.column.columnDef.cell}
                     </TableCell>
@@ -211,7 +210,7 @@ export function ReportsTable({
 
       <div className="flex items-center justify-between py-4">
         <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} из{" "}
+          {table.getFilteredSelectedRowModel().rows.length} из{' '}
           {table.getFilteredRowModel().rows.length} выбрано
         </div>
         <div className="space-x-2">
@@ -236,13 +235,13 @@ export function ReportsTable({
 
       {/* Модалки */}
       <ReportDialog
-        key={editReport?.id || "new"}
+        key={editReport?.id || 'new'}
         open={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         initialData={editReport ?? undefined}
         onSuccess={() => {
-          onDataChange?.();
-          setIsEditOpen(false);
+          onDataChange?.()
+          setIsEditOpen(false)
         }}
       />
 
@@ -252,5 +251,5 @@ export function ReportsTable({
         report={viewReport ?? undefined}
       />
     </div>
-  );
+  )
 }

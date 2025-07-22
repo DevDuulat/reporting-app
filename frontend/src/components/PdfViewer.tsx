@@ -35,6 +35,7 @@ const PdfViewer = ({ fileId }: { fileId: string }) => {
       try {
         setLoading(true)
         const token = await getToken()
+        console.log(token)
         const response = await fetch(`http://localhost:3000/files/${fileId}`, {
           headers: { Authorization: `Bearer ${token}` }
         })

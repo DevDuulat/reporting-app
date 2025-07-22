@@ -38,4 +38,8 @@ export class UsersService {
     const user = await this.findOne(id);
     return this.repo.remove(user);
   }
+
+  async findUserByEmail(email: string): Promise<User | null> {
+    return this.repo.findOne({ where: { email } });
+  }
 }

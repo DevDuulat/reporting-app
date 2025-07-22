@@ -9,6 +9,7 @@ import { MinioService } from '../minio/minio.service';
 import { ReportUser } from '../reports/report-user.entity';
 import { Grant } from '../grants/grant.entity';
 import { generateAccessToken } from '../common/utils/token';
+import { In } from 'typeorm';
 
 @Injectable()
 export class ReportInstancesService {
@@ -44,6 +45,13 @@ export class ReportInstancesService {
 
   remove(id: number) {
     return this.repo.delete(id);
+  }
+  async findById(id: number) {
+    return this.repo.findOne({ where: { id } });
+  }
+
+  async findByIds(ids: number[]) {
+    return this.repo.findBy({ id: In(ids) });
   }
 
   async upload(
@@ -82,10 +90,10 @@ export class ReportInstancesService {
 
       const grants = reportUsers.map((ru) =>
         this.grantRepo.create({
-          report_instance_id: savedInstance.id,
-          user_id: ru.user_id,
-          token_limit: 0,
-          access_token: generateAccessToken(),
+          reportInstance: { id: savedInstance.id },
+          user: { id: ru.user_id },
+          tokenLimit: 0,
+          accessToken: generateAccessToken(),
         }),
       );
 

@@ -5,21 +5,25 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { User } from '../users/user.entity';
+import { ReportInstance } from '../report_instances/report-instance.entity';
 
 @Entity('grants')
 export class Grant {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  report_instance_id: number;
+  @ManyToOne(() => ReportInstance, { eager: false })
+  @JoinColumn({ name: 'report_instance_id' })
+  reportInstance: ReportInstance;
 
-  @Column()
-  user_id: number;
+  @ManyToOne(() => User, { eager: false })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-  @Column()
-  token_limit: number;
+  @Column({ name: 'token_limit' })
+  tokenLimit: number;
 
-  @Column({ unique: true })
-  access_token: string;
+  @Column({ name: 'access_token' })
+  accessToken: string;
 }

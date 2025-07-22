@@ -1,5 +1,6 @@
 import { getToken } from '@/utils/keycloak.util'
 import { useEffect, useState, useMemo } from 'react'
+import { mockUser } from '@/mockUser'
 
 export interface Report {
   id: number
@@ -47,12 +48,29 @@ export function useReportInstances(): ReportInstance[] {
 
   const getInstances = async () => {
     const token = await getToken()
-    const response = await fetch('http://localhost:3000/report-instances', {
-      headers: {
-        Authorization: 'Bearer ' + token
+    // const response = await fetch('http://localhost:3000/report-instances', {
+    //   headers: {
+    //     Authorization: 'Bearer ' + token
+    //   }
+    // })
+    const response = await fetch(
+      `http://localhost:3000/report-instances${
+        mockUser?.id ? `?userId=${mockUser.id}` : ''
+      }`,
+      {
+        headers: {
+          Authorization: 'Bearer ' + token
+        }
       }
-    })
+    )
+
     const data = await response.json()
+
+    const ids = data.map((item: { id: number }) => item.id)
+
+    console.log('IDs:', ids)
+    console.log('Mock User ID:', mockUser.id)
+
     setInstances(data)
   }
 
