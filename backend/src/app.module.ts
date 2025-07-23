@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guards/auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { ViewsModule } from './views/views.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ViewsModule } from './views/views.module';
     MinioModule,
     ReportInstancesModule,
     ViewsModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [
