@@ -46,6 +46,16 @@ export class CreateReportInstancesTable1752743357627
             type: 'varchar',
             isNullable: true,
           },
+          {
+            name: 'createdAt',
+            type: 'timestamp',
+            default: 'now()',
+          },
+          {
+            name: 'updatedAt',
+            type: 'timestamp',
+            default: 'now()',
+          },
         ],
         foreignKeys: [
           {

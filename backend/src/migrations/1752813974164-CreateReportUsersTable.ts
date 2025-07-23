@@ -23,6 +23,16 @@ export class CreateReportUsersTable1752813974164 implements MigrationInterface {
             type: 'int',
             isNullable: false,
           },
+          {
+            name: 'createdAt',
+            type: 'timestamp',
+            default: 'now()',
+          },
+          {
+            name: 'updatedAt',
+            type: 'timestamp',
+            default: 'now()',
+          },
         ],
         foreignKeys: [
           {

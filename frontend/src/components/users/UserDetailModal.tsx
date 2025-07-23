@@ -52,7 +52,8 @@ export default function UserDetailModal({
         }
 
         const data = await res.json()
-        setViews(data)
+        setViews(Array.isArray(data) ? data : data.data ?? [])
+
       } catch (e) {
         console.error('Ошибка при загрузке просмотров', e)
       }

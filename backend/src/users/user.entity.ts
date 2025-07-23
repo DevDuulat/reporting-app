@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  CreateDateColumn,
+} from 'typeorm';
 import { Report } from '../reports/report.entity';
 
 @Entity('users')
@@ -17,4 +23,7 @@ export class User {
 
   @ManyToMany(() => Report, (report) => report.users)
   reports: Report[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

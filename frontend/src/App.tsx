@@ -16,9 +16,10 @@ import { useAuthState } from './hooks/useKeycloak'
 import { saveView } from './api/viewsApi'
 import { mockUser } from './mockUser'
 import { GrantReportPage } from '@/pages/GrantReportView'
+type ViewType = 'auth' | 'open' | undefined
 
 function MainApp() {
-  const { authenticated } = useAuthState()
+  const { authenticated, authType } = useAuthState()
   const navigate = useNavigate()
   const location = useLocation()
   const [fileId, setFileId] = useState<string | null>(null)
@@ -34,13 +35,18 @@ function MainApp() {
 
   if (!authenticated) return null
 
+  const validTypes: ViewType[] = ['auth', 'open', undefined]
+  const safeAuthType: ViewType = validTypes.includes(authType as ViewType)
+    ? (authType as ViewType)
+    : undefined
+
   return (
     <Layout
       onSelectReport={(report) => {
         saveView({
           user_id: mockUser.id,
           report_id: report.id,
-          type: 'open'
+          type: safeAuthType
         })
         navigate(`/viewer/${report.minio_id}`)
       }}
@@ -61,7 +67,7 @@ function MainApp() {
 }
 
 function GrantReportPageWrapper() {
-  const { loading, authenticated } = useAuthState()
+  const { loading, authenticated, authType } = useAuthState()
   const { accessToken } = useParams<{ accessToken: string }>()
   const navigate = useNavigate()
 
@@ -83,7 +89,7 @@ function GrantReportPageWrapper() {
         saveView({
           user_id: mockUser.id,
           report_id: report.id,
-          type: 'open'
+          type: authType
         })
         navigate(`/viewer/${report.minio_id}`)
       }}

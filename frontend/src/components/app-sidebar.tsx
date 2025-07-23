@@ -1,4 +1,4 @@
-import { Home, ChevronDown, Users as UsersIcon } from 'lucide-react'
+import { ChevronDown, Users as UsersIcon } from 'lucide-react'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -6,7 +6,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
@@ -18,17 +17,18 @@ import {
 } from '@/hooks/useReports'
 import { useState } from 'react'
 import { ProfileModal } from '@/components/profile/ProfileModal'
+import { mockUser } from '@/mockUser'
 
 const items = [
-  {
-    title: 'Отчеты',
-    icon: UsersIcon,
-    onClick: (props: AppSidebarProps) => props.onOpenReports()
-  },
   {
     title: 'Пользователи',
     icon: UsersIcon,
     onClick: (props: AppSidebarProps) => props.onOpenUsers()
+  },
+  {
+    title: 'Отчеты',
+    icon: UsersIcon,
+    onClick: (props: AppSidebarProps) => props.onOpenReports()
   }
 ]
 
@@ -52,7 +52,6 @@ export function AppSidebar({
       <div className="flex flex-col h-full bg-background text-foreground">
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Application</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {items.map((item) => (
@@ -159,7 +158,6 @@ export function AppSidebar({
         {/* Нижняя панель */}
         <div className="mt-auto">
           <SidebarGroup>
-            <SidebarGroupLabel>Account</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -184,6 +182,12 @@ export function AppSidebar({
             <ModeToggle />
           </div>
         </div>
+        <ProfileModal
+          open={profileOpen}
+          onClose={() => setProfileOpen(false)}
+          userId={mockUser.id}
+          email={mockUser.email}
+        />
       </div>
     </Sidebar>
   )

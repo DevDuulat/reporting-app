@@ -5,6 +5,7 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  CreateDateColumn,
 } from 'typeorm';
 
 import { User } from '../users/user.entity';
@@ -37,4 +38,7 @@ export class Report {
     inverseJoinColumn: { name: 'user_id', referencedColumnName: 'id' },
   })
   users: User[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

@@ -1,33 +1,30 @@
-import { getToken } from '@/utils/keycloak.util'
-
-export async function getViewsByUser(userId: number) {
-  const res = await fetch(`/api/views/by-user/${userId}`)
-  if (!res.ok) throw new Error('Не удалось загрузить просмотры')
-  return res.json()
-}
+import { getToken, isLoggedIn } from '@/utils/keycloak.util'
 
 export async function saveView({
   user_id,
   report_id,
-  type = 'open'
+  type
 }: {
-  user_id: number
+  user_id?: number
   report_id: number
-  type?: string
+  type?: 'auth' | 'open'
 }) {
   try {
-    const token = await getToken()
+    const authenticated = await isLoggedIn()
+    const token = authenticated ? await getToken() : null
+
+    const finalType = type ?? (authenticated ? 'auth' : 'open')
 
     const res = await fetch('http://localhost:3000/views', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
       body: JSON.stringify({
-        user_id,
+        user_id: user_id ?? null,
         report_id,
-        type
+        type: finalType
       })
     })
 

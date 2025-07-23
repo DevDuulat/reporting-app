@@ -7,7 +7,7 @@ const API_URL = 'http://localhost:3000/reports'
 
 export const getReports = async (): Promise<Report[]> => {
   const token = await getToken()
-
+  console.log(token)
   const response = await axios.get<Report[]>(API_URL, {
     headers: { Authorization: `Bearer ${token}` }
   })

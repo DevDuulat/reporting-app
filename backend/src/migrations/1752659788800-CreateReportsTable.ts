@@ -33,6 +33,12 @@ export class CreateReportsTable1752659788800 implements MigrationInterface {
             type: 'text',
             isNullable: true,
           },
+          {
+            name: 'createdAt',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            isNullable: false,
+          },
         ],
       }),
       true,

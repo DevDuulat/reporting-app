@@ -12,6 +12,13 @@ import { Button } from '@/components/ui/button'
 import { createUser, updateUser } from '@/api/usersApi'
 import type { User } from '@/types/user'
 import { toast } from 'sonner'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 interface UserDialogProps {
   open: boolean
@@ -101,12 +108,19 @@ export function UserDialog({
 
           <div>
             <label className="block text-sm text-muted-foreground">Роль</label>
-            <Input
+            <Select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="bg-background text-foreground border border-input"
+              onValueChange={(value) => setRole(value)}
               disabled={loading}
-            />
+            >
+              <SelectTrigger className="bg-background text-foreground border border-input">
+                <SelectValue placeholder="Выберите роль" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Администратор</SelectItem>
+                <SelectItem value="user">Пользователь</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Button

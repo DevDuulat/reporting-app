@@ -1,10 +1,10 @@
-// src/report/report-user.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToMany,
   JoinTable,
+  CreateDateColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity';
 
@@ -18,4 +18,6 @@ export class ReportUser {
 
   @Column()
   user_id: number;
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
 }

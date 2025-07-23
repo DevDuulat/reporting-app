@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { ViewsService } from './views.service';
 
 @Controller('views')
@@ -13,7 +13,18 @@ export class ViewsController {
   }
 
   @Get('by-user/:userId')
-  async getViewsByUser(@Param('userId') userId: number) {
-    return this.viewsService.findByUserId(Number(userId));
+  async getViewsByUser(
+    @Param('userId') userId: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    const pageNumber = Number(page);
+    const limitNumber = Math.min(Number(limit), 10);
+
+    return this.viewsService.findByUserIdPaginated(
+      userId,
+      pageNumber,
+      limitNumber,
+    );
   }
 }

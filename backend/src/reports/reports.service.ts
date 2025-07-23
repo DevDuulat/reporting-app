@@ -21,6 +21,16 @@ export class ReportsService {
     return this.reportsRepository.find();
   }
 
+  async findAllPaginated(page: number, limit: number) {
+    const [data, total] = await this.reportsRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+
+    return { data, total };
+  }
+
   async findOne(id: number): Promise<Report> {
     const report = await this.reportsRepository.findOne({ where: { id } });
     if (!report) throw new NotFoundException('Report not found');
@@ -54,6 +64,9 @@ export class ReportsService {
 
   async setUsersForReport(reportId: number, userIds: number[]) {
     await this.reportUsersRepository.delete({ report_id: reportId });
+
+    if (userIds.length === 0) return;
+
     const inserts = userIds.map((user_id) => ({
       report_id: reportId,
       user_id,

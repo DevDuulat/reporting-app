@@ -48,18 +48,14 @@ export function useAuthState() {
 
   const loginWithRedirect = useCallback(
     (redirectUri?: string) => {
-      if (keycloak) {
-        keycloak.login({ redirectUri })
-      }
+      if (keycloak) keycloak.login({ redirectUri })
     },
     [keycloak]
   )
 
   const logoutWithRedirect = useCallback(
     (redirectUri?: string) => {
-      if (keycloak) {
-        keycloak.logout({ redirectUri })
-      }
+      if (keycloak) keycloak.logout({ redirectUri })
     },
     [keycloak]
   )
@@ -74,18 +70,22 @@ export function useAuthState() {
   }, [keycloak])
 
   const refreshToken = useCallback(async (): Promise<string> => {
-    if (!keycloak) {
-      throw new Error('Keycloak not initialized')
-    }
+    if (!keycloak) throw new Error('Keycloak not initialized')
     return updateToken()
   }, [keycloak])
 
   const checkLogin = useCallback(async (): Promise<boolean> => {
-    if (!keycloak) {
-      return false
-    }
+    if (!keycloak) return false
     return isLoggedIn()
   }, [keycloak])
+
+  const tokenParsed = keycloak?.tokenParsed as
+    | { sub?: string; preferred_username?: string }
+    | undefined
+
+  const userId = tokenParsed?.sub ?? null
+
+  const authType = authenticated ? 'auth' : 'open'
 
   return {
     authenticated,
@@ -99,6 +99,8 @@ export function useAuthState() {
     isReady: !loading,
     getValidToken,
     updateToken: refreshToken,
-    isLoggedIn: checkLogin
+    isLoggedIn: checkLogin,
+    userId,
+    authType
   }
 }
