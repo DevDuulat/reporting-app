@@ -123,7 +123,7 @@ export function AppSidebar({
                     {Object.entries(byFolder).map(([folder, reports]) => (
                       <details className="group" key={folder}>
                         <summary
-                          className="flex items-center justify-between px-2 py-1.5 text-sm font-medium cursor-pointer list-none hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                          className="flex items-center justify-between px-2 py-1.5 text-sm font-medium cursor-pointer list-none hover:bg-gray-100 dark:hover:bg-primary rounded"
                           onMouseDown={(e) => e.preventDefault()}
                         >
                           <span>{folder}</span>
@@ -133,7 +133,7 @@ export function AppSidebar({
                           {reports.map((r) => (
                             <li
                               key={r.id}
-                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded select-none cursor-pointer"
+                              className="flex items-start px-2 py-1 text-sm hover:bg-gray-50 dark:hover:bg-primary rounded select-none cursor-pointer"
                               onMouseDown={(e) => e.preventDefault()}
                               onClick={() =>
                                 onSelectReport({

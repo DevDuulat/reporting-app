@@ -43,6 +43,49 @@ export function useReports(): Report[] {
   return reports
 }
 
+export function useReportInstanceByGrant(accessToken: string) {
+  const [reportInstance, setReportInstance] = useState<ReportInstance | null>(
+    null
+  )
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!accessToken) return
+
+    const fetchGrantReport = async () => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const token = await getToken()
+        const response = await fetch(
+          `http://localhost:3000/grants/${accessToken}`,
+          {
+            headers: { Authorization: 'Bearer ' + token }
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error(`Ошибка загрузки: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+        console.log(data)
+        setReportInstance(data.reportInstance)
+      } catch (err: any) {
+        setError(err.message || 'Неизвестная ошибка')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGrantReport()
+  }, [accessToken])
+
+  return { reportInstance, loading, error }
+}
+
 export function useReportInstances(): ReportInstance[] {
   const [instances, setInstances] = useState<ReportInstance[]>([])
 

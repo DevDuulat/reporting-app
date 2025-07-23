@@ -37,7 +37,7 @@ export function ReportActions({
         <Trash className="w-4 h-4" />
       </Button>
       <Button
-        variant="secondary"
+        variant="outline"
         size="sm"
         onClick={() => setUsersModalOpen(true)}
       >

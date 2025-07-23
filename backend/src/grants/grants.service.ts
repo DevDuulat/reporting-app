@@ -17,11 +17,25 @@ export class GrantsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findByAccessToken(token: string): Promise<Grant | null> {
-    return this.grantRepository.findOne({
+  // В GrantsService оставляем так:
+  async findByAccessToken(
+    token: string,
+    currentUserId: number,
+  ): Promise<Grant | null> {
+    const grant = await this.grantRepository.findOne({
       where: { accessToken: token },
       relations: ['user', 'reportInstance'],
     });
+
+    if (!grant) {
+      return null;
+    }
+
+    if (grant.user.id !== currentUserId) {
+      return null;
+    }
+
+    return grant;
   }
 
   async decrementTokenLimit(id: number): Promise<void> {
@@ -32,7 +46,7 @@ export class GrantsService {
     const grants = await this.grantRepository.find({
       where: {
         user: { id: userId },
-        tokenLimit: MoreThan(0),
+        // tokenLimit: MoreThan(0),
       },
       relations: ['reportInstance', 'reportInstance.report', 'user'],
     });
