@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,
@@ -39,10 +38,18 @@ import { ReportView } from '@/components/reports/report-view'
 import type { Report } from '@/types/report'
 import { ReportActions } from '@/components/reports/report-actions'
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover' // shadcn popover
+
 type ReportsTableProps = {
   data: Report[]
   columns: ColumnDef<Report>[]
-  onEditReport?: (report: Report) => Promise<void>
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onDeleteReport?: (id: number) => Promise<void>
   onDataChange?: () => void
 }
@@ -50,6 +57,9 @@ type ReportsTableProps = {
 export function ReportsTable({
   data,
   columns,
+  page,
+  totalPages,
+  onPageChange,
   onDeleteReport,
   onDataChange
 }: ReportsTableProps) {
@@ -59,13 +69,17 @@ export function ReportsTable({
   const [isViewOpen, setIsViewOpen] = React.useState(false)
   const [localData, setLocalData] = React.useState<Report[]>(data)
 
+  // id отчета для подтверждения удаления
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<number | null>(
+    null
+  )
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
 
   React.useEffect(() => {
     setLocalData(data)
@@ -84,7 +98,9 @@ export function ReportsTable({
   const handleDelete = async (id: number) => {
     if (onDeleteReport) {
       await onDeleteReport(id)
+      onDataChange?.()
     }
+    setDeleteConfirmId(null)
   }
 
   const extendedColumns: ColumnDef<Report>[] = React.useMemo(() => {
@@ -94,20 +110,52 @@ export function ReportsTable({
           ...col,
           cell: ({ row }: { row: Row<Report>; table: Table<Report> }) => {
             const report = row.original
+
             return (
-              <ReportActions
-                report={report}
-                onEdit={handleEdit}
-                onView={handleView}
-                onDelete={handleDelete}
-              />
+              <Popover
+                open={deleteConfirmId === report.id}
+                onOpenChange={(open) => {
+                  if (!open) setDeleteConfirmId(null)
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <div>
+                    <ReportActions
+                      report={report}
+                      onEdit={handleEdit}
+                      onView={handleView}
+                      onDelete={() => setDeleteConfirmId(report.id)}
+                    />
+                  </div>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-48 p-4 bg-card text-card-foreground rounded-md shadow-lg border border-border">
+                  <div className="mb-2 text-sm">Удалить этот отчет?</div>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeleteConfirmId(null)}
+                    >
+                      Нет
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(report.id)}
+                    >
+                      Да
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             )
           }
         }
       }
       return col
     })
-  }, [columns])
+  }, [columns, deleteConfirmId])
 
   const table = useReactTable<Report>({
     data: localData,
@@ -115,17 +163,14 @@ export function ReportsTable({
     state: {
       sorting,
       columnFilters,
-      columnVisibility,
-      rowSelection
+      columnVisibility
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel()
+    getFilteredRowModel: getFilteredRowModel()
   })
 
   return (
@@ -213,29 +258,11 @@ export function ReportsTable({
           {table.getFilteredSelectedRowModel().rows.length} из{' '}
           {table.getFilteredRowModel().rows.length} выбрано
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Назад
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Вперёд
-          </Button>
-        </div>
       </div>
 
       {/* Модалки */}
       <ReportDialog
-        key={editReport?.id || 'new'}
+        key={editReport?.id ?? 'new'}
         open={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         initialData={editReport ?? undefined}

@@ -6,7 +6,6 @@ import { fullScreenPlugin } from '@react-pdf-viewer/full-screen'
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import '@react-pdf-viewer/full-screen/lib/styles/index.css'
-import { getToken } from '@/utils/keycloak.util'
 import { useTheme } from '@/components/theme-provider'
 
 interface GrantReportPageProps {
@@ -14,8 +13,10 @@ interface GrantReportPageProps {
 }
 
 export function GrantReportPage({ accessToken }: GrantReportPageProps) {
-  const { reportInstance, loading, error } =
-    useReportInstanceByGrant(accessToken)
+  const { reportInstance, loading, error } = useReportInstanceByGrant(
+    accessToken,
+    false
+  )
   const { theme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -37,10 +38,11 @@ export function GrantReportPage({ accessToken }: GrantReportPageProps) {
     async function fetchPdf(minioId: string) {
       try {
         setPdfLoading(true)
-        const token = await getToken()
-        const response = await fetch(`http://localhost:3000/files/${minioId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+
+        const response = await fetch(
+          `http://localhost:3000/files/${minioId}`,
+          {}
+        )
 
         if (!response.ok) {
           throw new Error(`Ошибка загрузки файла: ${response.status}`)
@@ -82,20 +84,18 @@ export function GrantReportPage({ accessToken }: GrantReportPageProps) {
   if (!reportInstance) return <div>Отчёт не найден</div>
 
   return (
-    <div>
-      <div ref={containerRef} className="h-screen w-full mt-4">
-        {pdfLoading && <p>Загрузка PDF...</p>}
-        {pdfError && <p className="text-red-600">Ошибка: {pdfError}</p>}
-        {!pdfLoading && !pdfError && blobUrl && (
-          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-            <Viewer
-              fileUrl={blobUrl}
-              plugins={[defaultLayout, fullScreen]}
-              theme={theme === 'dark' ? 'dark' : 'light'}
-            />
-          </Worker>
-        )}
-      </div>
+    <div ref={containerRef} className="h-screen w-full">
+      {pdfLoading && <p>Загрузка PDF...</p>}
+      {pdfError && <p className="text-red-600">Ошибка: {pdfError}</p>}
+      {!pdfLoading && !pdfError && blobUrl && (
+        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+          <Viewer
+            fileUrl={blobUrl}
+            plugins={[defaultLayout, fullScreen]}
+            theme={theme === 'dark' ? 'dark' : 'light'}
+          />
+        </Worker>
+      )}
     </div>
   )
 }

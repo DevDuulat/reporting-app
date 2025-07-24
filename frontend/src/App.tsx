@@ -1,13 +1,10 @@
-import { useState, useEffect } from 'react'
 import {
-  BrowserRouter,
   Routes,
   Route,
   useParams,
   useNavigate,
   useLocation
 } from 'react-router-dom'
-
 import Layout from '@/components/Layout'
 import PdfViewer from '@/components/PdfViewer'
 import UsersPage from '@/components/users/page'
@@ -16,7 +13,7 @@ import { useAuthState } from './hooks/useKeycloak'
 import { saveView } from './api/viewsApi'
 import { mockUser } from './mockUser'
 import { GrantReportPage } from '@/pages/GrantReportView'
-type ViewType = 'auth' | 'open' | undefined
+import React, { useState, useEffect } from 'react'
 
 function MainApp() {
   const { authenticated, authType } = useAuthState()
@@ -26,19 +23,14 @@ function MainApp() {
 
   useEffect(() => {
     const match = location.pathname.match(/^\/viewer\/(.+)/)
-    if (match) {
-      setFileId(match[1])
-    } else {
-      setFileId(null)
-    }
+    if (match) setFileId(match[1])
+    else setFileId(null)
   }, [location.pathname])
 
   if (!authenticated) return null
 
-  const validTypes: ViewType[] = ['auth', 'open', undefined]
-  const safeAuthType: ViewType = validTypes.includes(authType as ViewType)
-    ? (authType as ViewType)
-    : undefined
+  const validTypes = ['auth', 'open', undefined]
+  const safeAuthType = validTypes.includes(authType) ? authType : undefined
 
   return (
     <Layout
@@ -67,53 +59,24 @@ function MainApp() {
 }
 
 function GrantReportPageWrapper() {
-  const { loading, authenticated, authType } = useAuthState()
   const { accessToken } = useParams<{ accessToken: string }>()
-  const navigate = useNavigate()
-
-  if (loading) {
-    return <div>Идёт инициализация...</div>
-  }
-
-  if (!authenticated) {
-    return <div>Пожалуйста, войдите в систему</div>
-  }
 
   if (!accessToken) {
     return <div>Недопустимый токен</div>
   }
 
-  return (
-    <Layout
-      onSelectReport={(report) => {
-        saveView({
-          user_id: mockUser.id,
-          report_id: report.id,
-          type: authType
-        })
-        navigate(`/viewer/${report.minio_id}`)
-      }}
-      onOpenReports={() => navigate('/reports')}
-      onOpenUsers={() => navigate('/users')}
-    >
-      <GrantReportPage accessToken={accessToken} />
-    </Layout>
-  )
+  // Публичный режим без Layout, только отчёт
+  return <GrantReportPage accessToken={accessToken} />
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/grants/:accessToken"
-          element={<GrantReportPageWrapper />}
-        />
-        <Route path="/reports" element={<MainApp />} />
-        <Route path="/users" element={<MainApp />} />
-        <Route path="/viewer/:fileId" element={<MainApp />} />
-        <Route path="/*" element={<MainApp />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {/* Публичный доступ — без Layout */}
+      <Route path="/grants/:accessToken" element={<GrantReportPageWrapper />} />
+
+      {/* Всё остальное — с Layout, авторизация */}
+      <Route path="/*" element={<MainApp />} />
+    </Routes>
   )
 }

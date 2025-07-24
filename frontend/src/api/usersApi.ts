@@ -14,6 +14,32 @@ export const getUsers = async (): Promise<User[]> => {
   return response.data
 }
 
+export const getUsersPaginated = async (
+  page = 1,
+  limit = 10
+): Promise<{
+  data: User[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}> => {
+  const token = await getToken()
+
+  const response = await axios.get<{
+    data: User[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }>(API_URL, {
+    params: { page, limit },
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  console.log(response.data)
+  return response.data
+}
+
 export const createUser = async (data: Partial<User>): Promise<User> => {
   const token = await getToken()
 

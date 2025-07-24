@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,
@@ -32,6 +31,11 @@ import {
   DropdownMenuCheckboxItem
 } from '@/components/ui/dropdown-menu'
 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent
+} from '@/components/ui/popover'
 import { ChevronDown } from 'lucide-react'
 import { UserActions } from '@/components/users/user-actions'
 import { UserDialog } from '@/components/users/user-dialog'
@@ -41,7 +45,6 @@ type UsersTableProps = {
   data: User[]
   columns: ColumnDef<User>[]
   onEditUser?: (user: User) => void
-
   onDeleteUser?: (id: number) => Promise<void>
   onDataChange?: () => void
 }
@@ -56,7 +59,10 @@ export function UsersTable({
   const [editUser, setEditUser] = React.useState<User | null>(null)
   const [isEditOpen, setIsEditOpen] = React.useState(false)
 
-  const [localData, setLocalData] = React.useState<User[]>(data)
+  const [deleteConfirmId, setDeleteConfirmId] = React.useState<number | null>(
+    null
+  )
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -64,10 +70,6 @@ export function UsersTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-
-  React.useEffect(() => {
-    setLocalData(data)
-  }, [data])
 
   const handleEdit = (user: User) => {
     setEditUser(user)
@@ -77,7 +79,9 @@ export function UsersTable({
   const handleDelete = async (id: number) => {
     if (onDeleteUser) {
       await onDeleteUser(id)
+      onDataChange?.()
     }
+    setDeleteConfirmId(null)
   }
 
   const extendedColumns: ColumnDef<User>[] = React.useMemo(() => {
@@ -88,21 +92,57 @@ export function UsersTable({
           cell: ({ row }: { row: Row<User>; table: Table<User> }) => {
             const user = row.original
             return (
-              <UserActions
-                user={user}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
+              <div className="relative inline-block">
+                <UserActions
+                  user={user}
+                  onEdit={handleEdit}
+                  onDelete={() => setDeleteConfirmId(user.id)}
+                />
+
+                {/* Поповер подтверждения удаления */}
+                {deleteConfirmId === user.id && (
+                  <Popover
+                    open
+                    onOpenChange={(open) => !open && setDeleteConfirmId(null)}
+                  >
+                    <PopoverTrigger asChild>
+                      {/* Нужно пустое обертка для триггера (можно скрытый элемент) */}
+                      <span />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-4 bg-card text-card-foreground rounded-md shadow-lg border border-border z-50">
+                      <div className="mb-2 text-sm">
+                        Удалить этого пользователя?
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setDeleteConfirmId(null)}
+                        >
+                          Нет
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          Да
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
             )
           }
         }
       }
       return col
     })
-  }, [columns])
+  }, [columns, deleteConfirmId])
 
   const table = useReactTable<User>({
-    data: localData,
+    data,
     columns: extendedColumns,
     state: {
       sorting,
@@ -117,7 +157,6 @@ export function UsersTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     meta: {
       onEditUser,
       onDeleteUser
@@ -200,31 +239,6 @@ export function UsersTable({
             )}
           </TableBody>
         </UITable>
-      </div>
-
-      <div className="flex items-center justify-between py-4">
-        <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} из{' '}
-          {table.getFilteredRowModel().rows.length} выбрано
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Назад
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Вперёд
-          </Button>
-        </div>
       </div>
 
       <UserDialog

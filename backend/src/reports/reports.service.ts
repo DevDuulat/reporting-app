@@ -28,7 +28,15 @@ export class ReportsService {
       order: { createdAt: 'DESC' },
     });
 
-    return { data, total };
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   async findOne(id: number): Promise<Report> {

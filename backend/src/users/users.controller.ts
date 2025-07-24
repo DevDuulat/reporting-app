@@ -20,7 +20,11 @@ export class UsersController {
   constructor(private readonly service: UsersService) {}
 
   @Get()
-  findAll() {
+  async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
+    if (page && limit) {
+      return this.service.findAllPaginated(+page, +limit);
+    }
+
     return this.service.findAll();
   }
 

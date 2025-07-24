@@ -1,6 +1,7 @@
 import { Controller, Get, Param, UnauthorizedException } from '@nestjs/common';
 import { GrantsService } from './grants.service';
 import { ViewsService } from '../views/views.service';
+import { SkipAuth } from '@app/common/decorators/skip-auth.decorator';
 
 @Controller('grants')
 export class GrantsController {
@@ -9,14 +10,12 @@ export class GrantsController {
     private readonly viewsService: ViewsService,
   ) {}
 
+  @SkipAuth()
   @Get(':accessToken')
   async getReportByGrant(@Param('accessToken') token: string) {
-    const currentUserId = 1100;
+    // const currentUserId = 1100;
 
-    const grant = await this.grantsService.findByAccessToken(
-      token,
-      currentUserId,
-    );
+    const grant = await this.grantsService.findByAccessToken(token);
 
     if (!grant) {
       throw new UnauthorizedException(
@@ -28,11 +27,11 @@ export class GrantsController {
       throw new UnauthorizedException('Токен исчерпан');
     }
 
-    await this.viewsService.create({
-      user_id: currentUserId,
-      report_id: grant.reportInstance.report.id,
-      type: 'token',
-    });
+    // await this.viewsService.create({
+    //   user_id: currentUserId,
+    //   report_id: grant.reportInstance.report.id,
+    //   type: 'token',
+    // });
 
     return {
       reportInstance: grant.reportInstance,

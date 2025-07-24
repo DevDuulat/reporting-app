@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useKeycloak } from '@/hooks/useKeycloak'
 
-export function useReportInstanceByGrant(accessToken: string) {
-  const {
-    getValidToken,
-    loading: keycloakLoading,
-    authenticated
-  } = useKeycloak()
-
+export function useReportInstanceByGrant(
+  accessToken: string,
+  withAuth: boolean = true
+) {
   const [reportInstance, setReportInstance] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -18,29 +14,36 @@ export function useReportInstanceByGrant(accessToken: string) {
       return
     }
 
-    if (keycloakLoading) {
-      return
-    }
-
-    if (!authenticated) {
-      setLoading(false)
-      setError('Пользователь не аутентифицирован')
-      return
-    }
     async function fetchReport() {
       setLoading(true)
       setError(null)
-      try {
-        const token = await getValidToken()
 
-        if (!token) {
-          throw new Error('Keycloak token is not available yet')
+      try {
+        const headers: HeadersInit = {}
+
+        if (withAuth) {
+          // динамический импорт useKeycloak только при необходимости
+          const { useKeycloak } = await import('@/hooks/useKeycloak')
+          const {
+            getValidToken,
+            loading: keycloakLoading,
+            authenticated
+          } = useKeycloak()
+
+          if (keycloakLoading) return
+
+          if (!authenticated) {
+            throw new Error('Пользователь не аутентифицирован')
+          }
+
+          const token = await getValidToken()
+          if (!token) throw new Error('Токен Keycloak недоступен')
+
+          headers.Authorization = `Bearer ${token}`
         }
 
         const res = await fetch(`http://localhost:3000/grants/${accessToken}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers
         })
 
         if (!res.ok) {
@@ -58,7 +61,7 @@ export function useReportInstanceByGrant(accessToken: string) {
     }
 
     void fetchReport()
-  }, [accessToken, keycloakLoading, authenticated, getValidToken])
+  }, [accessToken, withAuth])
 
   return { reportInstance, loading, error }
 }

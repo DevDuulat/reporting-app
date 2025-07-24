@@ -40,6 +40,4 @@ export class ReportAccessController {
 
     return { status: 'ok' };
   }
-
-  
 }

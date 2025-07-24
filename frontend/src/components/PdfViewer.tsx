@@ -12,7 +12,12 @@ import { useTheme } from '@/components/theme-provider'
 import { useRef, useEffect, useState } from 'react'
 import { getToken } from '@/utils/keycloak.util'
 
-const PdfViewer = ({ fileId }: { fileId: string }) => {
+interface PdfViewerProps {
+  fileId: string
+  requireAuth?: boolean
+}
+
+const PdfViewer = ({ fileId, requireAuth = true }: PdfViewerProps) => {
   const { theme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -34,10 +39,16 @@ const PdfViewer = ({ fileId }: { fileId: string }) => {
     async function fetchPdf() {
       try {
         setLoading(true)
-        const token = await getToken()
-        console.log(token)
+        let headers: HeadersInit = {}
+
+        if (requireAuth) {
+          const token = await getToken()
+          if (!token) throw new Error('Токен не получен')
+          headers.Authorization = `Bearer ${token}`
+        }
+
         const response = await fetch(`http://localhost:3000/files/${fileId}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers
         })
 
         if (!response.ok) {
@@ -71,7 +82,7 @@ const PdfViewer = ({ fileId }: { fileId: string }) => {
         URL.revokeObjectURL(blobUrl)
       }
     }
-  }, [fileId])
+  }, [fileId, requireAuth])
 
   if (loading) return <p>Загрузка файла...</p>
   if (error) return <p className="text-red-600">Ошибка: {error}</p>

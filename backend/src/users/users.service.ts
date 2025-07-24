@@ -1,5 +1,9 @@
 // src/users/users.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -17,15 +21,39 @@ export class UsersService {
     return this.repo.find();
   }
 
+  async findAllPaginated(page: number, limit: number) {
+    const [data, total] = await this.repo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'DESC' },
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+  }
+
   async findOne(id: number) {
     const user = await this.repo.findOneBy({ id });
     if (!user) throw new NotFoundException(`User ${id} not found`);
     return user;
   }
 
-  create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto) {
+    const existingUser = await this.repo.findOne({
+      where: { email: dto.email },
+    });
+    if (existingUser) {
+      throw new ConflictException('Пользователь с таким email уже существует');
+    }
     const user = this.repo.create(dto);
-    return this.repo.save(user);
+    return await this.repo.save(user);
   }
 
   async update(id: number, dto: UpdateUserDto) {

@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -17,7 +18,10 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get()
-  async findAll(): Promise<Report[]> {
+  async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
+    if (page && limit) {
+      return this.reportsService.findAllPaginated(+page, +limit);
+    }
     return this.reportsService.findAll();
   }
 

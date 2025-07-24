@@ -11,7 +11,33 @@ export const getReports = async (): Promise<Report[]> => {
   const response = await axios.get<Report[]>(API_URL, {
     headers: { Authorization: `Bearer ${token}` }
   })
+  console.log(response.data)
+  return response.data
+}
+export const getReportsPaginated = async (
+  page = 1,
+  limit = 10
+): Promise<{
+  data: Report[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}> => {
+  const token = await getToken()
 
+  const response = await axios.get<{
+    data: Report[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }>(API_URL, {
+    params: { page, limit },
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  console.log(response.data)
   return response.data
 }
 

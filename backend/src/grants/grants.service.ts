@@ -17,22 +17,13 @@ export class GrantsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findByAccessToken(
-    token: string,
-    currentUserId: number,
-  ): Promise<Grant | null> {
+  async findByAccessToken(token: string): Promise<Grant | null> {
     const grant = await this.grantRepository.findOne({
-      where: { accessToken: token },
-      relations: ['user', 'reportInstance', 'reportInstance.report'],
+      where: {
+        accessToken: token,
+      },
+      relations: ['reportInstance', 'reportInstance.report'],
     });
-
-    if (!grant) {
-      return null;
-    }
-
-    if (grant.user.id !== currentUserId) {
-      return null;
-    }
 
     return grant;
   }
