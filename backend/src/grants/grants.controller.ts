@@ -13,8 +13,6 @@ export class GrantsController {
   @SkipAuth()
   @Get(':accessToken')
   async getReportByGrant(@Param('accessToken') token: string) {
-    // const currentUserId = 1100;
-
     const grant = await this.grantsService.findByAccessToken(token);
 
     if (!grant) {
@@ -27,11 +25,12 @@ export class GrantsController {
       throw new UnauthorizedException('Токен исчерпан');
     }
 
-    // await this.viewsService.create({
-    //   user_id: currentUserId,
-    //   report_id: grant.reportInstance.report.id,
-    //   type: 'token',
-    // });
+    await this.viewsService.create({
+      user_id: grant.user.id,
+      report_id: grant.reportInstance.report.id,
+      type: 'token',
+      timestamp: new Date(),
+    });
 
     return {
       reportInstance: grant.reportInstance,

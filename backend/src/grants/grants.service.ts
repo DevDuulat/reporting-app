@@ -22,7 +22,7 @@ export class GrantsService {
       where: {
         accessToken: token,
       },
-      relations: ['reportInstance', 'reportInstance.report'],
+      relations: ['user', 'reportInstance', 'reportInstance.report'],
     });
 
     return grant;
