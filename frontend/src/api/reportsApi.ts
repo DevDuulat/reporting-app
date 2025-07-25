@@ -14,6 +14,7 @@ export const getReports = async (): Promise<Report[]> => {
   console.log(response.data)
   return response.data
 }
+
 export const getReportsPaginated = async (
   page = 1,
   limit = 10
@@ -25,7 +26,7 @@ export const getReportsPaginated = async (
   totalPages: number
 }> => {
   const token = await getToken()
-
+  console.log(token)
   const response = await axios.get<{
     data: Report[]
     total: number

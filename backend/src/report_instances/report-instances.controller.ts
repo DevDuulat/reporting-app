@@ -32,12 +32,25 @@ export class ReportInstancesController {
   }
 
   @Get()
-  async findAllOrByUser(@Query('userId') userId?: number) {
+  async findAll(
+    @Query('userId') userId?: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    page = +page;
+    limit = +limit;
+
     if (userId) {
-      return this.grantsService.findInstancesByUser(userId);
+      return this.grantsService.findInstancesByUser(+userId, page, limit);
     }
 
-    return this.service.findAll();
+    if (page && limit) {
+      return this.service.findAllPaginated({
+        page,
+        limit,
+        userId: userId ? +userId : undefined,
+      });
+    }
   }
 
   @Get(':id')

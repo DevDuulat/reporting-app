@@ -1,5 +1,5 @@
 import { getToken } from '@/utils/keycloak.util'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { mockUser } from '@/mockUser'
 
 export interface Report {
@@ -86,42 +86,53 @@ export function useReportInstanceByGrant(accessToken: string) {
   return { reportInstance, loading, error }
 }
 
-export function useReportInstances(): ReportInstance[] {
+export function useReportInstances() {
   const [instances, setInstances] = useState<ReportInstance[]>([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const limit = 10
 
-  const getInstances = async () => {
+  const getInstances = useCallback(async (nextPage: number) => {
     const token = await getToken()
-    // const response = await fetch('http://localhost:3000/report-instances', {
-    //   headers: {
-    //     Authorization: 'Bearer ' + token
-    //   }
-    // })
-    const response = await fetch(
-      `http://localhost:3000/report-instances${
-        mockUser?.id ? `?userId=${mockUser.id}` : ''
-      }`,
-      {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
+
+    const params = new URLSearchParams()
+    if (mockUser?.id) {
+      params.append('userId', mockUser.id.toString())
+    }
+    params.append('page', nextPage.toString())
+    params.append('limit', limit.toString())
+
+    const url = `http://localhost:3000/report-instances?${params.toString()}`
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: 'Bearer ' + token
       }
-    )
+    })
 
     const data = await response.json()
+    console.log(data)
+    if (nextPage === 1) {
+      setInstances(data.data)
+    } else {
+      setInstances((prev) => [...prev, ...data.data])
+    }
 
-    const ids = data.map((item: { id: number }) => item.id)
-
-    console.log('IDs:', ids)
-    console.log('Mock User ID:', mockUser.id)
-
-    setInstances(data)
-  }
-
-  useEffect(() => {
-    void getInstances()
+    setHasMore(data.hasMore)
+    setPage(nextPage)
   }, [])
 
-  return instances
+  useEffect(() => {
+    void getInstances(1)
+  }, [getInstances])
+
+  const loadMore = () => {
+    if (hasMore) {
+      void getInstances(page + 1)
+    }
+  }
+
+  return { instances, loadMore, hasMore }
 }
 
 export function useGroupedReportInstances(instances: ReportInstance[]): {

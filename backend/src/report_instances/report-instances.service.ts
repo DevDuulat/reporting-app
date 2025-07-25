@@ -54,6 +54,32 @@ export class ReportInstancesService {
     return this.repo.findBy({ id: In(ids) });
   }
 
+  async findAllPaginated({
+    userId,
+    page = 1,
+    limit = 10,
+  }: {
+    userId?: number;
+    page: number;
+    limit: number;
+  }) {
+    const query = this.repo
+      .createQueryBuilder('ri')
+      .leftJoinAndSelect('ri.report', 'report')
+      .orderBy('ri.created_at', 'DESC');
+
+    if (userId) {
+      query.where('ri.user_id = :userId', { userId });
+    }
+
+    const data = await query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return data;
+  }
+
   async upload(
     reportId: number,
     file: Express.Multer.File,
@@ -98,10 +124,6 @@ export class ReportInstancesService {
       );
 
       await this.grantRepo.save(grants);
-
-      this.logger.log(
-        `Создано ${grants.length} грантов для отчета ${savedInstance.id}`,
-      );
 
       return savedInstance;
     } catch (error) {

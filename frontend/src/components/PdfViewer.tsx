@@ -1,16 +1,16 @@
 'use client'
 
-import { Viewer, Worker } from '@react-pdf-viewer/core'
+import { Viewer, Worker, LocalizationMap } from '@react-pdf-viewer/core'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { fullScreenPlugin } from '@react-pdf-viewer/full-screen'
-
+import '@react-pdf-viewer/full-screen/lib/styles/index.css'
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
-import '@react-pdf-viewer/full-screen/lib/styles/index.css'
 
 import { useTheme } from '@/components/theme-provider'
 import { useRef, useEffect, useState } from 'react'
 import { getToken } from '@/utils/keycloak.util'
+import ru_RU from '@react-pdf-viewer/locales/lib/ru_RU.json'
 
 interface PdfViewerProps {
   fileId: string
@@ -21,9 +21,8 @@ const PdfViewer = ({ fileId, requireAuth = true }: PdfViewerProps) => {
   const { theme } = useTheme()
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const fullScreen = fullScreenPlugin({
-    getFullScreenTarget: () => containerRef.current!
-  })
+  const fullScreenPluginInstance = fullScreenPlugin()
+  const { EnterFullScreenButton } = fullScreenPluginInstance
 
   const defaultLayout = defaultLayoutPlugin({
     sidebarTabs: () => []
@@ -90,10 +89,11 @@ const PdfViewer = ({ fileId, requireAuth = true }: PdfViewerProps) => {
 
   return (
     <div ref={containerRef} className="h-screen w-full">
-      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
         <Viewer
           fileUrl={blobUrl}
-          plugins={[defaultLayout, fullScreen]}
+          localization={ru_RU as unknown as LocalizationMap}
+          plugins={[defaultLayout, fullScreenPluginInstance]}
           theme={theme === 'dark' ? 'dark' : 'light'}
         />
       </Worker>
